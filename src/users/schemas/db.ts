@@ -19,7 +19,7 @@ export class User {
     password: string
 
     @Prop()
-    role?: string
+    role: "user" | "admin"
 }
 
 

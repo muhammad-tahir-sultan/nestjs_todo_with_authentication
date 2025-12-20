@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { TodosService } from './todos.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
@@ -22,14 +23,16 @@ export class TodosController {
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @Post()
-  create(@Body() createTodoDto: CreateTodoDto) {
-    return this.todosService.create(createTodoDto);
+  create(@Body() createTodoDto: CreateTodoDto, @Req() req: any) {
+    const userId = req.user.sub;
+    return this.todosService.create(createTodoDto, userId);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
   @Get()
-  findAll() {
-    return this.todosService.findAll();
+  findAll(@Req() req: any) {
+    const userId = req.user.sub;
+    return this.todosService.findAll(userId);
   }
 
   @UseGuards(AuthGuard, RolesGuard)

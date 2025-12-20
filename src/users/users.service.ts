@@ -1,31 +1,59 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schemas/db';
 import { Model } from 'mongoose';
+import { updateUserDto } from './dto/update.user.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
-  async create(createUserDto: CreateUserDto): Promise<User> {
-    const createdUser = new this.userModel(createUserDto)
-    return createdUser.save()
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+
+  async findAll() {
+    return await this.userModel.find();
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findOne(id: string) {
+    const user = await this.userModel.findById(id);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    return {
+      message: 'User Found Successfully',
+      user,
+    };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async update(id: string, updateUserDto: updateUserDto) {
+    const user = await this.userModel.findById(id);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    await this.userModel.findByIdAndUpdate(id, {
+      role: updateUserDto.role,
+    });
+
+    return {
+      message: 'User Updated Successfully',
+      user,
+    };
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
+  async remove(id: string) {
+    const user = await this.userModel.findById(id);
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    await this.userModel.deleteOne(user._id);
+
+    return {
+      message: 'User Deleted Successfully',
+      user,
+    };
   }
 }

@@ -9,19 +9,20 @@ import { Model } from 'mongoose';
 export class TodosService {
   constructor(@InjectModel(Todo.name) private todoModel: Model<Todo>) {}
 
-  async create(createTodoDto: CreateTodoDto) {
+  async create(createTodoDto: CreateTodoDto, userId: string) {
     const { name, description, isCompleted } = createTodoDto;
     const task = await this.todoModel.create({
       name,
       description,
       isCompleted,
+      user: userId,
     });
 
     return { message: 'Task Created Successfully', task };
   }
 
-  async findAll() {
-    return await this.todoModel.find();
+  async findAll(userId: string) {
+    return await this.todoModel.find({ user: userId });
   }
 
   async findOne(id: string) {
